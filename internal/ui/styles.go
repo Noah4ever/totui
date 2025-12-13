@@ -35,15 +35,16 @@ var (
 			BorderForeground(lipgloss.Color("212"))
 )
 
-func Panel(width int, active bool) lipgloss.Style {
-	if width > 0 {
-		if active {
-			return panelActive.Copy().Width(width)
-		}
-		return panelBase.Copy().Width(width)
-	}
+func Panel(width, height int, active bool) lipgloss.Style {
+	style := panelBase
 	if active {
-		return panelActive.Copy()
+		style = panelActive
 	}
-	return panelBase.Copy()
+	if width > 0 {
+		style = style.Copy().Width(width)
+	}
+	if height > 0 {
+		style = style.Copy().Height(height)
+	}
+	return style
 }
