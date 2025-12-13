@@ -18,11 +18,7 @@ func (m Model) View() string {
 
 	main := lipgloss.JoinHorizontal(lipgloss.Top, listsPanel, todosPanel)
 
-	if m.InputMode == InputNone {
-		return ui.Header.Render("ToTUI") + "\n\n" + main
-	}
-
-	return ui.Header.Render("ToTUI") + "\n\n" + main + "\n\n" + m.renderInput()
+	return ui.Header.Render("ToTUI") + "\n\n" + main
 }
 
 func (m Model) renderLists() string {
@@ -35,9 +31,15 @@ func (m Model) renderLists() string {
 		rows = append(rows, style.Render(list.Name))
 	}
 
+	// Inline input when adding or renaming lists.
+	if m.InputMode == InputAddList || m.InputMode == InputRenameList {
+		rows = append(rows, ui.ItemSelected.Render(m.Input.View()))
+	}
+
 	body := strings.Join(rows, "\n")
 	w := m.sectionWidthLists()
-	panel := ui.Panel(w, m.ActiveWindow == Lists)
+	h := m.sectionHeight()
+	panel := ui.Panel(w, h, m.ActiveWindow == Lists)
 	content := ui.Title.Render("Lists") + "\n" + body
 	return panel.Render(content)
 }
@@ -59,28 +61,17 @@ func (m Model) renderTodos() string {
 		}
 	}
 
-	body := strings.Join(items, "\n")
-	w := m.sectionWidthTodos()
-	panel := ui.Panel(w, m.ActiveWindow == Todos)
-	content := ui.Title.Render("ToDo's") + "\n" + body
-	return panel.Render(content)
-}
-
-func (m Model) renderInput() string {
-	label := ""
-	switch m.InputMode {
-	case InputAddList:
-		label = "Add list"
-	case InputAddTodo:
-		label = "Add todo"
-	case InputRenameList:
-		label = "Rename list"
-	case InputRenameTodo:
-		label = "Rename todo"
+	// Inline input when adding or renaming todos.
+	if m.InputMode == InputAddTodo || m.InputMode == InputRenameTodo {
+		items = append(items, fmt.Sprintf("[ ] %s", m.Input.View()))
 	}
 
-	w := m.sectionWidthInput()
-	return ui.Panel(w, true).Render(ui.Title.Render(label) + "\n" + m.Input.View())
+	body := strings.Join(items, "\n")
+	w := m.sectionWidthTodos()
+	h := m.sectionHeight()
+	panel := ui.Panel(w, h, m.ActiveWindow == Todos)
+	content := ui.Title.Render("ToDo's") + "\n" + body
+	return panel.Render(content)
 }
 
 func (m Model) sectionWidthLists() int {
@@ -115,4 +106,16 @@ func (m Model) sectionWidthInput() int {
 		return 60
 	}
 	return m.Width - 4
+}
+
+func (m Model) sectionHeight() int {
+	if m.Height <= 0 {
+		return 0
+	}
+	// Subtract header (1) + blank line (1) for spacing.
+	height := m.Height - 2
+	if height < 6 {
+		height = 6
+	}
+	return height
 }
