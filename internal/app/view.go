@@ -36,18 +36,24 @@ func (m Model) renderLists() string {
 		rows = append(rows, ui.ItemSelected.Render(m.Input.View()))
 	}
 
-	body := strings.Join(rows, "\n")
+	body := ui.Title.Render("Lists") + "\n" + strings.Join(rows, "\n")
 	w := m.sectionWidthLists()
 	h := m.sectionHeight()
 	panel := ui.Panel(w, h, m.ActiveWindow == Lists)
-	content := ui.Title.Render("Lists") + "\n" + body
-	return panel.Render(content)
+	return panel.Render(body)
 }
 
 func (m Model) renderTodos() string {
 	items := []string{}
 	if len(m.Lists) > 0 {
-		for i, item := range m.Lists[m.SelectedList].Items {
+		listIdx := m.SelectedList
+		if listIdx < 0 {
+			listIdx = 0
+		}
+		if listIdx >= len(m.Lists) {
+			listIdx = len(m.Lists) - 1
+		}
+		for i, item := range m.Lists[listIdx].Items {
 			status := "[ ]"
 			style := ui.Item
 			if item.Completed {
@@ -66,12 +72,11 @@ func (m Model) renderTodos() string {
 		items = append(items, fmt.Sprintf("[ ] %s", m.Input.View()))
 	}
 
-	body := strings.Join(items, "\n")
+	body := ui.Title.Render("ToDo's") + "\n" + strings.Join(items, "\n")
 	w := m.sectionWidthTodos()
 	h := m.sectionHeight()
 	panel := ui.Panel(w, h, m.ActiveWindow == Todos)
-	content := ui.Title.Render("ToDo's") + "\n" + body
-	return panel.Render(content)
+	return panel.Render(body)
 }
 
 func (m Model) sectionWidthLists() int {
@@ -99,13 +104,6 @@ func (m Model) sectionWidthTodos() int {
 		remaining = 30
 	}
 	return remaining
-}
-
-func (m Model) sectionWidthInput() int {
-	if m.Width <= 0 {
-		return 60
-	}
-	return m.Width - 4
 }
 
 func (m Model) sectionHeight() int {

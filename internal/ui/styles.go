@@ -9,26 +9,29 @@ var (
 
 	Title = lipgloss.NewStyle().
 		Bold(true).
+		Foreground(lipgloss.Color("250")).
+		Underline(true).
 		MarginBottom(1)
 
-	Selected = lipgloss.NewStyle().
-			Bold(true).
-			Foreground(lipgloss.Color("212"))
-
-	Item = lipgloss.NewStyle()
+	Item = lipgloss.NewStyle().
+		Foreground(lipgloss.Color("252"))
 
 	ItemSelected = Item.Copy().
 			Bold(true).
-			Foreground(lipgloss.Color("212"))
+			Foreground(lipgloss.Color("0")).
+			Background(lipgloss.Color("229")) // high contrast, colorblind-friendly
 
 	Completed = lipgloss.NewStyle().
 			Faint(true)
+
+	Muted = lipgloss.NewStyle().
+		Foreground(lipgloss.Color("245"))
 )
 
 var (
 	panelBase = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
-			BorderForeground(lipgloss.Color("247")).
+			BorderForeground(lipgloss.Color("245")).
 			Padding(1, 2)
 
 	panelActive = panelBase.Copy().

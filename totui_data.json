@@ -1,0 +1,28 @@
+[
+  {
+    "ID": "list-1765672126327979050",
+    "Name": "New list",
+    "Items": [
+      {
+        "ID": "item-1765672258335156197",
+        "Title": "Test",
+        "Completed": false,
+        "Due": "",
+        "SubItems": null
+      }
+    ]
+  },
+  {
+    "ID": "inbox",
+    "Name": "Inbox",
+    "Items": [
+      {
+        "ID": "item-1765672266169346845",
+        "Title": "Test",
+        "Completed": false,
+        "Due": "",
+        "SubItems": null
+      }
+    ]
+  }
+]

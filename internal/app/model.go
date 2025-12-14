@@ -28,6 +28,8 @@ const (
 	InputAddTodo
 	InputRenameList
 	InputRenameTodo
+	InputAddSubTodo
+	InputRenameSubTodo
 )
 
 type TodoItem struct {
@@ -35,6 +37,7 @@ type TodoItem struct {
 	Title     string
 	Completed bool
 	Due       string // ISO date string, empty if none
+	SubItems  []TodoItem
 }
 
 type TodoList struct {
@@ -47,6 +50,7 @@ type Model struct {
 	Lists        []TodoList
 	SelectedList int
 	SelectedItem int
+	SelectedSub  int // -1 when no sub-item is selected
 	Mode         Mode
 	ActiveWindow Window
 	Input        textinput.Model
@@ -55,18 +59,24 @@ type Model struct {
 	LastKeyAt    time.Time
 	Width        int
 	Height       int
+	StoragePath  string
+	SaveFunc     func(string, []TodoList) error
 	Running      bool
 }
 
 func NewModel() Model {
+	return NewModelWithData(nil)
+}
+
+func NewModelWithData(lists []TodoList) Model {
 	tInput := textinput.New()
 	tInput.Prompt = " > "
 	tInput.CharLimit = 140
 	tInput.Placeholder = "Name"
 	tInput.Blur()
 
-	return Model{
-		Lists: []TodoList{
+	if len(lists) == 0 {
+		lists = []TodoList{
 			{
 				ID:   "inbox",
 				Name: "Inbox",
@@ -74,15 +84,21 @@ func NewModel() Model {
 					{ID: "1", Title: "Welcome to toTUI", Completed: false},
 				},
 			},
-		},
+		}
+	}
+
+	return Model{
+		Lists:        lists,
 		SelectedList: 0,
 		SelectedItem: 0,
+		SelectedSub:  -1,
 		Mode:         Simple,
 		ActiveWindow: Lists,
 		Input:        tInput,
 		InputMode:    InputNone,
 		Width:        0,
 		Height:       0,
+		StoragePath:  "totui_data.json",
 		Running:      true,
 	}
 }
